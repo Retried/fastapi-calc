@@ -13,7 +13,11 @@ class select(Enum):
     root = "root"
 
 
-app = FastAPI()
+app = FastAPI(
+    title="FastAPI Calculator",
+    description="My first project with FastAPI",
+    version="1.1"
+)
 
 
 @app.get("/calc")
