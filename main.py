@@ -1,6 +1,5 @@
 import uvicorn
-import math
-from fastapi import FastAPI
+from fastapi import FastAPI, Response, status
 from enum import Enum
 
 
@@ -16,33 +15,30 @@ class select(Enum):
 app = FastAPI(
     title="FastAPI Calculator",
     description="My first project with FastAPI",
-    version="1.1"
+    version="2.0"
 )
 
 
-@app.get("/calc")
-def read_item(mode: select, x: int, y: int):
-    if mode == mode.sum:
-        return x + y
+@app.get("/calc", status_code=status.HTTP_201_CREATED)
+def read_item(mode: select, x: int, y: int, response: Response):
+    cases = {
+        "sum": lambda a, b: a + b,
+        "subtraction": lambda a, b: a - b,
+        "multiplication": lambda a, b: a * b,
+        "division": lambda a, b: a / b,
+        "exponentiation": lambda a, b: pow(a, b),
+        "root": lambda a, b: pow(a, 1 / b),
+    }
 
-    if mode == mode.subtraction:
-        return x - y
-
-    if mode == mode.multiplication:
-        return x * y
-
-    if mode == mode.division:
-        if y == 0:
-            return "Error: Dividing by 0"
-        else:
-            return x / y
-
-    if mode == mode.exponentiation:
-        return math.pow(x, y)
-
-    if mode == mode.root:
-        return math.pow(x, 1 / y)
+    if mode.value == "division" and y == 0:
+        response.status_code = status.HTTP_405_METHOD_NOT_ALLOWED
+        return "Error: Dividing by 0"
+    elif mode.value == "root" and y == 0:
+        response.status_code = status.HTTP_405_METHOD_NOT_ALLOWED
+        return "Error: Root of 0"
+    else:
+        return cases[mode.value](x, y)
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=8000, log_level="info")
+    uvicorn.run(app, host="127.0.0.1", port=8000, log_level="info", debug=True)
