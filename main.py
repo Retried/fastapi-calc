@@ -3,7 +3,7 @@ from fastapi import FastAPI, Response, status
 from enum import Enum
 
 
-class select(Enum):
+class Select(Enum):
     sum = "sum"
     subtraction = "subtraction"
     multiplication = "multiplication"
@@ -15,12 +15,12 @@ class select(Enum):
 app = FastAPI(
     title="FastAPI Calculator",
     description="My first project with FastAPI",
-    version="2.0"
+    version="2.0.1"
 )
 
 
 @app.get("/calc", status_code=status.HTTP_201_CREATED)
-def read_item(mode: select, x: int, y: int, response: Response):
+def read_item(mode: Select, x: int, y: int, response: Response):
     cases = {
         "sum": lambda a, b: a + b,
         "subtraction": lambda a, b: a - b,
@@ -31,10 +31,10 @@ def read_item(mode: select, x: int, y: int, response: Response):
     }
 
     if mode.value == "division" and y == 0:
-        response.status_code = status.HTTP_405_METHOD_NOT_ALLOWED
+        response.status_code = status.HTTP_400_BAD_REQUEST
         return "Error: Dividing by 0"
     elif mode.value == "root" and y == 0:
-        response.status_code = status.HTTP_405_METHOD_NOT_ALLOWED
+        response.status_code = status.HTTP_400_BAD_REQUEST
         return "Error: Root of 0"
     else:
         return cases[mode.value](x, y)
