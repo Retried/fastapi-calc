@@ -20,7 +20,7 @@ app = FastAPI(
 
 
 @app.get("/calc", status_code=status.HTTP_201_CREATED)
-def read_item(mode: Select, x: int, y: int, response: Response):
+def read_item(mode: Select, response: Response, x: int, y: int = 0):
     cases = {
         "sum": lambda a, b: a + b,
         "subtraction": lambda a, b: a - b,
