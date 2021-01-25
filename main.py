@@ -1,6 +1,25 @@
+from enum import Enum
+from typing import List
+
+import databases
+import sqlalchemy
 import uvicorn
 from fastapi import FastAPI, Response, status
-from enum import Enum
+from pydantic import BaseModel
+
+DATABASE_URL = "sqlite:///./history.db"
+database = databases.Database(DATABASE_URL)
+metadata = sqlalchemy.MetaData()
+history = sqlalchemy.Table(
+    "history",
+    metadata,
+    sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True, autoincrement=True, unique=True),
+    sqlalchemy.Column("data", sqlalchemy.Float, nullable=False)
+)
+engine = sqlalchemy.create_engine(
+    DATABASE_URL, connect_args={"check_same_thread": False}
+)
+metadata.create_all(engine)
 
 
 class Select(Enum):
@@ -15,12 +34,27 @@ class Select(Enum):
 app = FastAPI(
     title="FastAPI Calculator",
     description="My first project with FastAPI",
-    version="2.0.1"
+    version="3.0.0"
 )
 
 
-@app.get("/calc", status_code=status.HTTP_201_CREATED)
-def read_item(mode: Select, response: Response, x: int, y: int = 0):
+class Note(BaseModel):
+    id: int
+    data: float = 0
+
+
+@app.on_event("startup")
+async def startup():
+    await database.connect()
+
+
+@app.on_event("shutdown")
+async def shutdown():
+    await database.disconnect()
+
+
+@app.post("/calc/", status_code=status.HTTP_201_CREATED)
+async def calculate(mode: Select, response: Response, x: int, y: int = 0):
     cases = {
         "sum": lambda a, b: a + b,
         "subtraction": lambda a, b: a - b,
@@ -37,7 +71,22 @@ def read_item(mode: Select, response: Response, x: int, y: int = 0):
         response.status_code = status.HTTP_400_BAD_REQUEST
         return "Error: Root of 0"
     else:
+        query = history.insert().values(data=cases[mode.value](x, y))
+        await database.execute(query)
         return cases[mode.value](x, y)
+
+
+@app.get("/notes/", response_model=List[Note])
+async def read_notes():
+    query = history.select()
+    return await database.fetch_all(query)
+
+
+@app.get("/clear/")
+async def delete_notes():
+    query = history.delete()
+    await database.execute(query)
+    return 'Database is clear'
 
 
 if __name__ == "__main__":
