@@ -7,7 +7,7 @@ import uvicorn
 from fastapi import FastAPI, Response, status
 from pydantic import BaseModel
 
-DATABASE_URL = "sqlite:///./history.db"
+DATABASE_URL = "postgresql://postgres:8848@localhost:5432/history"
 database = databases.Database(DATABASE_URL)
 metadata = sqlalchemy.MetaData()
 history = sqlalchemy.Table(
@@ -16,9 +16,7 @@ history = sqlalchemy.Table(
     sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True, autoincrement=True, unique=True),
     sqlalchemy.Column("data", sqlalchemy.Float, nullable=False)
 )
-engine = sqlalchemy.create_engine(
-    DATABASE_URL, connect_args={"check_same_thread": False}
-)
+engine = sqlalchemy.create_engine(DATABASE_URL)
 metadata.create_all(engine)
 
 
