@@ -7,7 +7,8 @@ import uvicorn
 from fastapi import FastAPI, Response, status
 from pydantic import BaseModel
 
-DATABASE_URL = "postgresql://postgres:8848@localhost:5432/history"
+
+DATABASE_URL = "postgresql://postgres:8848@localhost:5432/database"
 database = databases.Database(DATABASE_URL)
 metadata = sqlalchemy.MetaData()
 history = sqlalchemy.Table(
