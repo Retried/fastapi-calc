@@ -8,7 +8,7 @@ from fastapi import FastAPI, Response, status
 from pydantic import BaseModel
 
 
-DATABASE_URL = "postgresql://postgres:8848@localhost:5432/database"
+DATABASE_URL = "postgresql://postgres:8848@host.docker.internal:5432/database"
 database = databases.Database(DATABASE_URL)
 metadata = sqlalchemy.MetaData()
 history = sqlalchemy.Table(
@@ -89,4 +89,4 @@ async def delete_notes():
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=8000, log_level="info", debug=True)
+    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info", debug=True)
