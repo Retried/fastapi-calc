@@ -1,0 +1,30 @@
+docker run --name postgres -e POSTGRES_PASSWORD=8848 -d -p 5432:5432 postgres-database
+
+docker exec -it postgres
+
+psql -U postgres -W
+
+create database database;
+
+\c database
+
+CREATE TABLE history(
+id SERIAL,
+data REAL
+);
+
+
+
+
+
+
+
+
+
+docker build -t igor/fastapi-uvicorn:demo .
+
+docker run -d --name mycontainer -p 8080:8080 igor/fastapi-uvicorn:demo
+
+
+docker run --name pgadmin -p 8888:80 -e "PGADMIN_DEFAULT_EMAIL=a@a.com" -e "PGADMIN_DEFAULT_PASSWORD=ss" --network pg-n -d dpage/pgadmin4
+
