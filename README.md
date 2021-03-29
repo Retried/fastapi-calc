@@ -21,4 +21,4 @@ Project is created with:
 ## Setup
 To see results you need to enter link down below:
 
-http://127.0.0.1:8000/docs
+http://127.0.0.1:8080/docs
